@@ -1,0 +1,48 @@
+pipeline{
+agent any
+environment{
+  DOCKER_IMAGE="ajaykumar2602/dockerr-image"
+}
+stages{
+stage('Clone Repository'){
+steps{
+git 'https://github.com/Ajay00-07/Exp1.git'
+}
+}
+stage('Build Docker Image'){
+steps{
+script{
+docker.build("${DOCKER_IMAGE}:v1")
+}
+}
+}
+stage('Login to Docker Hub'){
+steps{
+withCredentails([usernamePassword(
+credentailsId:'dockerhub-creds',
+usernameVariable:'DOCKER_USER',
+passwordVariable:'DOCKER_PASS'
+)]){
+bat 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+}
+}
+}
+stage('Push Docker Image'){
+steps{
+script{
+docker.withRegistry('','dockerhub-creds'){
+docker.image("${DOCKER_IMAGE}:v1").push()
+}
+}
+}
+}
+}
+post{
+success{
+echo 'Image successfully build and pushed to Docker Hub'
+}
+failure{
+echo 'Pipeline failed'
+}
+}
+}
