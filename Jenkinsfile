@@ -7,12 +7,6 @@ pipeline {
 
     stages {
 
-        stage('Clone Repository') {
-            steps {
-                git 'https://github.com/Ajay00-07/Exp1.git'
-            }
-        }
-
         stage('Build Docker Image') {
             steps {
                 script {
